@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Button } from './UI';
@@ -7,33 +7,39 @@ const CategoryTreeItem = ({
   category, 
   level = 0, 
   selectedId, 
+  expandedIds,
+  onToggle,
   onSelect, 
   onAddChild 
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const hasChildren = category.children && category.children.length > 0;
+  const hasChildren = Array.isArray(category.children) && category.children.length > 0;
+  const isExpanded = expandedIds.has(category.id);
   const isSelected = selectedId === category.id;
 
   const handleToggle = () => {
     if (hasChildren) {
-      setIsExpanded(!isExpanded);
+      onToggle(category.id);
     }
   };
 
   const handleSelect = () => {
     onSelect(category);
+    if (hasChildren && !isExpanded) {
+      onToggle(category.id);
+    }
   };
 
   return (
     <div className="select-none">
       <motion.div
-        className={`category-tree-item ${isSelected ? 'selected' : ''}`}
+        className={`group category-tree-item ${isSelected ? 'selected' : ''}`}
         style={{ paddingLeft: `${level * 20 + 8}px` }}
         whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
       >
         <div className="flex items-center gap-2 flex-1" onClick={handleSelect}>
           {hasChildren ? (
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggle();
@@ -68,6 +74,7 @@ const CategoryTreeItem = ({
         </div>
         
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onAddChild(category);
@@ -93,6 +100,8 @@ const CategoryTreeItem = ({
                 category={child}
                 level={level + 1}
                 selectedId={selectedId}
+                expandedIds={expandedIds}
+                onToggle={onToggle}
                 onSelect={onSelect}
                 onAddChild={onAddChild}
               />
@@ -113,12 +122,56 @@ export const CategoryTree = ({
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set());
 
+  const parentById = useMemo(() => {
+    const parentMap = new Map();
+    const walk = (nodes = []) => {
+      nodes.forEach((node) => {
+        parentMap.set(node.id, node.parent ?? null);
+        if (Array.isArray(node.children) && node.children.length > 0) {
+          walk(node.children);
+        }
+      });
+    };
+    walk(categories);
+    return parentMap;
+  }, [categories]);
+
+  useEffect(() => {
+    if (!selectedCategory?.id) {
+      return;
+    }
+
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      let parentId = parentById.get(selectedCategory.id);
+
+      while (parentId) {
+        next.add(parentId);
+        parentId = parentById.get(parentId);
+      }
+
+      return next;
+    });
+  }, [selectedCategory, parentById]);
+
   const handleAddRoot = () => {
     onAddCategory(null);
   };
 
   const handleAddChild = (parentCategory) => {
     onAddCategory(parentCategory);
+  };
+
+  const handleToggleCategory = (categoryId) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
   };
 
   return (
@@ -155,14 +208,15 @@ export const CategoryTree = ({
           ) : (
             <div className="py-2">
               {categories.map(category => (
-                <div key={category.id} className="group">
-                  <CategoryTreeItem
-                    category={category}
-                    selectedId={selectedCategory?.id}
-                    onSelect={onCategorySelect}
-                    onAddChild={handleAddChild}
-                  />
-                </div>
+                <CategoryTreeItem
+                  key={category.id}
+                  category={category}
+                  selectedId={selectedCategory?.id}
+                  expandedIds={expandedIds}
+                  onToggle={handleToggleCategory}
+                  onSelect={onCategorySelect}
+                  onAddChild={handleAddChild}
+                />
               ))}
             </div>
           )}
