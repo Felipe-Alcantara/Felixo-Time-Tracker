@@ -1,233 +1,267 @@
 # Felixo Time Tracker
 
-**Tagline:** Ferramenta modular para marcar e analisar o tempo por categorias aninhadas, tasks e tags.
+Aplicação full-stack para registrar tempo por categorias hierárquicas, acompanhar histórico de sessões e visualizar estatísticas de produtividade.
 
-**O que é:** Aplicação full-stack (backend Python, frontend React) para registrar sessões de trabalho/estudo/lazer, com suporte para categorias dentro de categorias, tags, exportação CSV e visualizações de estatísticas.
+## Visão geral
 
-## 🚀 Principais Features
+O projeto combina:
 
-- ⏱️ **Timer com start/stop** por task com suporte a edição manual de entradas
-- 🌳 **Árvore de categorias** (multi-nível) com propriedades por categoria
-- 🏷️ **Tags por entry** com filtros por dia/semana/mês
-- 📊 **Dashboard completo**: tempo por categoria, por tag, heatmap, média de sessão
-- 💾 **Offline-first** (SQLite local) + opção sync via API
-- 📤 **Export CSV** para análise externa
-- 🎨 **Interface moderna** seguindo o design system Felixoverse
+- Backend em Django + Django REST Framework para modelagem, regras de negócio e API REST.
+- Frontend em React + Vite para timer, gestão de categorias e visualização analítica.
+- Banco SQLite em desenvolvimento (com estrutura pronta para evoluir para produção).
 
-## 🛠️ Stack Tecnológica
+## Funcionalidades atuais
 
-- **Backend**: Django + Django REST Framework
-- **Frontend**: React + Vite + Tailwind CSS + Framer Motion
-- **Database**: SQLite (desenvolvimento) / PostgreSQL (produção)
-- **Charts**: Recharts
-- **Icons**: Lucide React
+### Timer e sessões
 
-## 📁 Estrutura do Projeto
+- Início e parada de timer via API (`start_timer` e `stop_timer`).
+- Recuperação de timer ativo (`running`) para restaurar estado ao recarregar a página.
+- Cálculo automático de duração (`duration_seconds`) quando uma sessão é finalizada.
+- Registro de nota por sessão.
 
-```
+### Categorias e organização
+
+- Categorias aninhadas com suporte a multi-nível (categoria pai e filhas).
+- Árvore de categorias para seleção rápida no fluxo de timer.
+- Gerenciador de categorias com visualização de métricas por categoria.
+- Expansão para listar sessões da categoria.
+- Exclusão de categorias e sessões.
+- Expansão/recolhimento por clique na linha da categoria (não apenas na seta).
+- Filhas ocultas quando a categoria mãe está recolhida.
+- Botão para recolher todas as categorias.
+
+### Histórico e edição
+
+- Histórico agrupado por dia.
+- Total de tempo por dia.
+- Edição de entrada com validações de horário.
+- Suporte para virada de dia na edição manual (ex.: início 23:30 e fim 01:30 no dia seguinte).
+
+### Dashboard e análise
+
+- Resumo por período (`hoje`, `semana`, `mês`).
+- Tempo total, total de sessões e média por sessão.
+- Gráfico de pizza por categoria.
+- Top tasks por tempo.
+- Bloco de tempo por tag.
+- Exportação de entradas em CSV.
+
+### UX e UI
+
+- Design system documentado em [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
+- Componentes reutilizáveis (`Button`, `Card`, `Badge`, `Input`, `Select`, `Modal`).
+- Interface responsiva com Tailwind e animações via Framer Motion.
+
+## Stack tecnológica
+
+- Backend: `Django 4.2`, `Django REST Framework`, `django-cors-headers`.
+- Frontend: `React 18`, `Vite`, `Tailwind CSS`, `Framer Motion`, `Recharts`, `Axios`, `date-fns`.
+- Banco: `SQLite` (desenvolvimento).
+
+## Estrutura do repositório
+
+```text
 Felixo-Time-Tracker/
-├── backend/                 # Django API
-│   ├── timetracker/        # Configurações do projeto
-│   ├── core/               # App principal
-│   │   ├── models.py       # Modelos de dados
-│   │   ├── serializers.py  # Serializers DRF
-│   │   ├── views.py        # Views da API
-│   │   └── urls.py         # URLs da API
-│   ├── requirements.txt    # Dependências Python
-│   └── manage.py          # Django CLI
-├── frontend/               # React App
+├── backend/
+│   ├── core/                    # Models, serializers, views e rotas da API
+│   ├── timetracker/             # settings.py, urls.py, wsgi/asgi
+│   ├── requirements.txt
+│   ├── manage.py
+│   └── .env.example
+├── frontend/
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── services/       # API services
-│   │   ├── utils/          # Utilitários
-│   │   └── App.jsx         # Componente principal
-│   ├── package.json        # Dependências Node
-│   └── tailwind.config.js  # Configuração Tailwind
-└── README.md              # Este arquivo
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── utils/
+│   ├── package.json
+│   └── tests/                   # scripts utilitários de validação manual
+├── setup.bat                    # setup Windows
+├── setup.sh                     # setup Linux/macOS
+├── start.py                     # sobe backend + frontend
+├── start.bat                    # atalho Windows para start.py
+└── README.md
 ```
 
-## 🔧 Instalação e Configuração
-
-### Pré-requisitos
+## Requisitos
 
 - Python 3.11+
 - Node.js 18+
-- npm ou yarn
+- npm
 
-### 1. Backend (Django)
+## Instalação
+
+### Opção A: setup automático
+
+Windows:
+
+```bat
+setup.bat
+```
+
+Linux/macOS:
 
 ```bash
-# Navegar para o diretório backend
+bash setup.sh
+```
+
+### Opção B: setup manual
+
+Backend:
+
+```bash
 cd backend
-
-# Criar ambiente virtual (recomendado)
 python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+```
 
-# Instalar dependências
+Windows:
+
+```bat
+venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+Instalar dependências e migrar:
+
+```bash
 pip install -r requirements.txt
-
-# Executar migrações
 python manage.py makemigrations
 python manage.py migrate
+```
 
-# Criar superusuário (opcional)
-python manage.py createsuperuser
+Frontend:
 
-# Iniciar servidor de desenvolvimento
+```bash
+cd ../frontend
+npm install
+```
+
+## Variáveis de ambiente (backend)
+
+Existe um exemplo em `backend/.env.example`:
+
+```env
+SECRET_KEY=django-insecure-dev-key-change-in-production-12345
+DEBUG=True
+DATABASE_URL=sqlite:///db.sqlite3
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+Se quiser usar arquivo `.env`, copie o exemplo e ajuste os valores.
+
+## Executando o projeto
+
+### Inicialização rápida (recomendado em Windows)
+
+```bat
+start.bat
+```
+
+Ou:
+
+```bash
+python start.py
+```
+
+### Inicialização manual
+
+Terminal 1 (backend):
+
+```bash
+cd backend
 python manage.py runserver
 ```
 
-O backend estará disponível em `http://localhost:8000`
-
-### 2. Frontend (React)
+Terminal 2 (frontend):
 
 ```bash
-# Navegar para o diretório frontend
 cd frontend
-
-# Instalar dependências
-npm install
-
-# Iniciar servidor de desenvolvimento
 npm run dev
 ```
 
-O frontend estará disponível em `http://localhost:5173`
+URLs padrão:
 
-## 📊 Modelo de Dados
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:8000/api`
+- Admin Django: `http://localhost:8000/admin`
 
-### Categories (Categorias)
-- Estrutura hierárquica com `parent_id`
-- Materialized path para consultas eficientes
-- Propriedades customizáveis (JSON)
+## API REST (resumo)
 
-### Tasks (Tarefas)
-- Vinculadas a categorias
-- Tags padrão configuráveis
-- Propriedades como prioridade e status
+Base URL: `http://localhost:8000/api`
 
-### TimeEntry (Registros de Tempo)
-- Start/end timestamps com timezone
-- Duração calculada automaticamente
-- Suporte a tags múltiplas
-- Notas e metadados
+Recursos principais:
 
-### Tags
-- Sistema flexível de etiquetas
-- Cores customizáveis
-- Reutilizáveis entre entries
+- `GET /categories/`
+- `POST /categories/`
+- `PUT /categories/{id}/`
+- `DELETE /categories/{id}/`
+- `GET /categories/tree/`
+- `GET /categories/{id}/stats/`
+- `GET /tasks/`
+- `POST /tasks/`
+- `GET /tags/`
+- `POST /tags/`
+- `GET /entries/`
+- `POST /entries/`
+- `PUT /entries/{id}/`
+- `DELETE /entries/{id}/`
+- `GET /entries/running/`
+- `POST /entries/start_timer/`
+- `POST /entries/stop_timer/`
+- `GET /entries/stats_summary/`
+- `GET /entries/top_tasks/`
+- `GET /entries/export_csv/`
 
-## 🔌 API Endpoints
+Exemplo rápido:
 
-### Categorias
-- `GET /api/categories/` - Listar categorias
-- `GET /api/categories/tree/` - Árvore completa
-- `POST /api/categories/` - Criar categoria
-- `PUT /api/categories/{id}/` - Atualizar categoria
-
-### Timer
-- `POST /api/entries/start_timer/` - Iniciar timer
-- `POST /api/entries/stop_timer/` - Parar timer
-- `GET /api/entries/running/` - Timer ativo
-
-### Estatísticas
-- `GET /api/entries/stats_summary/` - Resumo estatístico
-- `GET /api/entries/top_tasks/` - Top tasks por tempo
-- `GET /api/entries/export_csv/` - Export CSV
-
-## 🎨 Design System
-
-O projeto segue o design system **Felixoverse** com:
-
-- **Paleta**: Roxo Felixo (#C084FC) + tons de zinc
-- **Tipografia**: Space Grotesk
-- **Componentes**: Cards com glow effects, botões com animações
-- **Layout**: Grid responsivo com breakpoints mobile-first
-
-## 🧪 Testes Rápidos
-
-### 1. Teste do Timer
 ```bash
-# Backend rodando em localhost:8000
-# Frontend rodando em localhost:5173
-
-# 1. Criar uma categoria via admin ou API
-# 2. Iniciar timer no frontend
-# 3. Verificar se aparece no histórico
-```
-
-### 2. Teste da API
-```bash
-# Criar categoria
 curl -X POST http://localhost:8000/api/categories/ \
   -H "Content-Type: application/json" \
-  -d '{"name": "Trabalho", "parent": null}'
-
-# Iniciar timer
-curl -X POST http://localhost:8000/api/entries/start_timer/ \
-  -H "Content-Type: application/json" \
-  -d '{"category_id": 1, "note": "Teste"}'
+  -d "{\"name\":\"Trabalho\",\"parent\":null}"
 ```
 
-### 3. Teste das Estatísticas
-```bash
-# Obter estatísticas
-curl "http://localhost:8000/api/entries/stats_summary/?from=2024-01-01&to=2024-12-31"
-```
+## Scripts úteis
 
-## 🚀 Deploy e Produção
+Raiz do projeto:
 
-### Backend
-1. Configurar PostgreSQL
-2. Definir variáveis de ambiente
-3. Executar `python manage.py collectstatic`
-4. Deploy via Heroku, Railway ou VPS
+- `setup.bat`: setup automático no Windows.
+- `setup.sh`: setup automático no Linux/macOS.
+- `start.py`: inicia backend + frontend e abre navegador.
+- `start.bat`: atalho para executar `start.py`.
+- `open-browser.bat`: abre `http://localhost:5173`.
 
-### Frontend
-1. Build: `npm run build`
-2. Deploy via Vercel, Netlify ou servir estático
+Frontend:
 
-### Desktop (Tauri - Opcional)
-```bash
-# Instalar Tauri CLI
-npm install -g @tauri-apps/cli
+- `npm run dev`: ambiente de desenvolvimento.
+- `npm run build`: build de produção.
+- `npm run preview`: preview da build.
 
-# Configurar Tauri no frontend
-npm install @tauri-apps/api
+## Testes e validações
 
-# Build desktop app
-npm run tauri build
-```
+O repositório inclui scripts utilitários em `frontend/tests` para validar cenários de horário e virada de dia.
 
-## 🤝 Contribuição
+- `frontend/tests/time-tests.js`
+- `frontend/tests/day-transition-test.js`
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+Eles são focados em validação manual/diagnóstico e podem ser executados em ambiente de desenvolvimento.
 
-### Sugestões de Melhorias
+## Próximas melhorias sugeridas
 
-- [ ] WebSocket para sincronização em tempo real
-- [ ] Modo offline com sincronização
-- [ ] Relatórios avançados (PDF)
-- [ ] Integração com calendários
-- [ ] Notificações de lembrete
-- [ ] Metas e objetivos de tempo
-- [ ] Integração com ferramentas de produtividade
+- WebSocket para atualização em tempo real.
+- Sincronização offline/online robusta.
+- Relatórios avançados (ex.: PDF).
+- Metas de tempo por categoria/task.
+- Notificações e alertas.
 
-## 📄 Licença
+## Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE).
 
-## 👨‍💻 Autor
+## Autor
 
-**Felix** - [GitHub](https://github.com/felixoakz)
-
----
-
-⭐ Se este projeto te ajudou, considere dar uma estrela no repositório!
+Felix: [https://github.com/felixoakz](https://github.com/felixoakz)
