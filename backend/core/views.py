@@ -88,7 +88,7 @@ class TimeEntryViewSet(viewsets.ModelViewSet):
     serializer_class = TimeEntrySerializer
 
     def get_queryset(self):
-        queryset = TimeEntry.objects.all()
+        queryset = TimeEntry.objects.select_related('category', 'task').prefetch_related('tags')
         
         # Filtros por data
         from_date = self.request.query_params.get('from')
@@ -118,6 +118,84 @@ class TimeEntryViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(tags__name=tag_name)
             
         return queryset
+
+    def _classify_speedrun(self, current_seconds, avg_duration, min_duration, total_entries, is_first=False):
+        if is_first or total_entries <= 1 or avg_duration <= 0:
+            return {
+                'status': 'first',
+                'label': 'Primeira sessao',
+                'ratio_percent': 100,
+            }
+
+        ratio = current_seconds / avg_duration
+        ratio_percent = int(round(ratio * 100))
+
+        if current_seconds <= min_duration:
+            status = 'record'
+            label = 'Recorde'
+        elif ratio <= 0.90:
+            status = 'fast'
+            label = 'Bom ritmo'
+        elif ratio <= 1.10:
+            status = 'normal'
+            label = 'Na media'
+        elif ratio <= 1.35:
+            status = 'slow'
+            label = 'Abaixo da media'
+        else:
+            status = 'very_slow'
+            label = 'Bem abaixo da media'
+
+        return {
+            'status': status,
+            'label': label,
+            'ratio_percent': ratio_percent,
+        }
+
+    def _build_speedrun_snapshot(self, entry):
+        current_seconds = int(entry.duration_seconds or 0)
+        comparison_entries = TimeEntry.objects.filter(
+            category__path__startswith=entry.category.path,
+            end_at__isnull=False,
+            end_at__lt=entry.end_at,
+        ).exclude(id=entry.id)
+        durations = list(comparison_entries.values_list('duration_seconds', flat=True))
+        compared_entries = len(durations)
+
+        if compared_entries == 0:
+            baseline = self._classify_speedrun(
+                current_seconds=current_seconds,
+                avg_duration=0,
+                min_duration=0,
+                total_entries=1,
+                is_first=True,
+            )
+            return {
+                **baseline,
+                'current_seconds': current_seconds,
+                'avg_duration': 0,
+                'min_duration': 0,
+                'total_entries': 1,
+                'compared_entries': 0,
+            }
+
+        avg_duration = sum(durations) / compared_entries
+        min_duration = min(durations)
+        total_entries = compared_entries + 1
+        baseline = self._classify_speedrun(
+            current_seconds=current_seconds,
+            avg_duration=avg_duration,
+            min_duration=min_duration,
+            total_entries=total_entries,
+        )
+        return {
+            **baseline,
+            'current_seconds': current_seconds,
+            'avg_duration': round(avg_duration),
+            'min_duration': int(min_duration),
+            'total_entries': int(total_entries),
+            'compared_entries': int(compared_entries),
+        }
 
     @action(detail=False, methods=['get'])
     def running(self, request):
@@ -163,6 +241,10 @@ class TimeEntryViewSet(viewsets.ModelViewSet):
             try:
                 entry = TimeEntry.objects.get(id=entry_id, end_at__isnull=True)
                 entry.stop()
+                meta = dict(entry.meta or {})
+                meta['speedrun_snapshot'] = self._build_speedrun_snapshot(entry)
+                entry.meta = meta
+                entry.save()
                 response_serializer = TimeEntrySerializer(entry)
                 return Response(response_serializer.data)
             except TimeEntry.DoesNotExist:

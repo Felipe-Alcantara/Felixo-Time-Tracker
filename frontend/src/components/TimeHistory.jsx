@@ -7,6 +7,41 @@ import { formatDate, formatTime, formatDurationShort, getTagColor } from '../uti
 import { timeEntryAPI } from '../services/api';
 
 export const TimeEntryItem = ({ entry, onEdit, onDelete }) => {
+  const speedrunSnapshot = entry?.meta?.speedrun_snapshot || null;
+  const speedrunDynamic = entry?.speedrun_dynamic || null;
+  const speedrunStyleByStatus = {
+    first: {
+      label: 'Primeira sessão',
+      className: 'bg-zinc-500/10 text-zinc-300 border-zinc-500/30',
+    },
+    record: {
+      label: 'Recorde',
+      className: 'bg-green-500/15 text-green-300 border-green-500/40',
+    },
+    fast: {
+      label: 'Bom ritmo',
+      className: 'bg-lime-500/15 text-lime-300 border-lime-500/40',
+    },
+    normal: {
+      label: 'Na média',
+      className: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/40',
+    },
+    slow: {
+      label: 'Abaixo da média',
+      className: 'bg-orange-500/10 text-orange-300 border-orange-500/30',
+    },
+    very_slow: {
+      label: 'Bem abaixo da média',
+      className: 'bg-red-500/10 text-red-300 border-red-500/30',
+    },
+  };
+  const speedrunSnapshotStyle = speedrunSnapshot
+    ? (speedrunStyleByStatus[speedrunSnapshot.status] || speedrunStyleByStatus.normal)
+    : null;
+  const speedrunDynamicStyle = speedrunDynamic
+    ? (speedrunStyleByStatus[speedrunDynamic.status] || speedrunStyleByStatus.normal)
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -52,6 +87,36 @@ export const TimeEntryItem = ({ entry, onEdit, onDelete }) => {
             {entry.is_running ? 'Em andamento' : formatDurationShort(entry.duration_seconds)}
           </div>
         </div>
+
+        {!entry.is_running && (speedrunSnapshotStyle || speedrunDynamicStyle) && (
+          <div className="space-y-1 text-xs">
+            {speedrunSnapshotStyle && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 ${speedrunSnapshotStyle.className}`}>
+                  Na época: {speedrunSnapshotStyle.label}
+                </span>
+                {(speedrunSnapshot.total_entries || speedrunSnapshot.compared_entries || 0) > 1 && (
+                  <span className="text-zinc-500">
+                    média base {formatDurationShort(Math.round(speedrunSnapshot.avg_duration || 0))}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {speedrunDynamicStyle && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 ${speedrunDynamicStyle.className}`}>
+                  Hoje: {speedrunDynamicStyle.label}
+                </span>
+                {(speedrunDynamic.total_entries || 0) > 1 && (
+                  <span className="text-zinc-500">
+                    {speedrunDynamic.ratio_percent || 0}% da média • média {formatDurationShort(Math.round(speedrunDynamic.avg_duration || 0))}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {entry.note && (
           <p className="text-sm text-zinc-400 break-words">{entry.note}</p>
