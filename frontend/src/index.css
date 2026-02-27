@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .felixo-card-glow {
+    @apply shadow-lg shadow-felixo-purple/20 border-felixo-purple/30;
+  }
+  
+  .felixo-card-glow-white {
+    @apply shadow-lg shadow-white/10 border-white/20;
+  }
+  
+  .felixo-card-glow-intense {
+    @apply shadow-xl shadow-felixo-purple-bright/30 border-felixo-purple-bright/50;
+  }
+  
+  .input-glowing-border:focus {
+    @apply border-felixo-purple ring-2 ring-felixo-purple/20 shadow-lg shadow-felixo-purple/20;
+  }
+  
+  .timer-display {
+    @apply font-mono text-4xl md:text-6xl font-bold text-white;
+  }
+  
+  .category-tree-item {
+    @apply flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors;
+  }
+  
+  .category-tree-item.selected {
+    @apply bg-felixo-purple/20 border border-felixo-purple/30;
+  }
+}
