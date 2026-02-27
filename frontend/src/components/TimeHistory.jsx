@@ -17,7 +17,7 @@ export const TimeEntryItem = ({ entry, onEdit, onDelete }) => {
         <div className="flex items-start gap-2 min-w-0">
           <div className="w-2 h-2 rounded-full bg-felixo-purple mt-1 shrink-0"></div>
           <span
-            className="font-medium text-white min-w-0 break-words [overflow-wrap:anywhere]"
+            className="font-medium text-white min-w-0 [overflow-wrap:anywhere]"
             title={entry.category_name}
           >
             {entry.category_name}
@@ -28,7 +28,7 @@ export const TimeEntryItem = ({ entry, onEdit, onDelete }) => {
           <div className="flex items-start gap-2 min-w-0 pl-4">
             <span className="text-zinc-500 shrink-0">&gt;</span>
             <span
-              className="text-zinc-300 min-w-0 break-words [overflow-wrap:anywhere]"
+              className="text-zinc-300 min-w-0 [overflow-wrap:anywhere]"
               title={entry.task_name}
             >
               {entry.task_name}
