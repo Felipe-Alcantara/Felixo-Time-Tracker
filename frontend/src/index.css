@@ -24,7 +24,7 @@
   }
   
   .category-tree-item {
-    @apply flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors;
+    @apply flex w-full min-w-0 items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors;
   }
   
   .category-tree-item.selected {

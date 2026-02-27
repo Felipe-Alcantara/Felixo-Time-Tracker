@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Edit, Trash2, Tag } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from './UI';
@@ -84,17 +84,24 @@ export const TimeEntryItem = ({ entry, onEdit, onDelete }) => {
   );
 };
 
-export const TimeEntriesHistory = ({ refreshTrigger = 0, categories = [] }) => {
+export const TimeEntriesHistory = ({ refreshTrigger = 0, categories = [], selectedCategory = null }) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [groupedEntries, setGroupedEntries] = useState({});
   const [editingEntry, setEditingEntry] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const requestSeqRef = useRef(0);
+  const filterLabel = selectedCategory?.path || 'Todas as categorias';
 
   const fetchEntries = async () => {
+    const requestId = ++requestSeqRef.current;
     setLoading(true);
     try {
-      const response = await timeEntryAPI.getAll();
+      const params = selectedCategory?.id
+        ? { category: selectedCategory.id, include_descendants: 1 }
+        : {};
+      const response = await timeEntryAPI.getAll(params);
+      if (requestId !== requestSeqRef.current) return;
       setEntries(response.data.results || response.data);
       
       // Agrupar por data
@@ -106,18 +113,27 @@ export const TimeEntriesHistory = ({ refreshTrigger = 0, categories = [] }) => {
         }
         grouped[date].push(entry);
       });
-      
+      if (requestId !== requestSeqRef.current) return;
       setGroupedEntries(grouped);
     } catch (error) {
+      if (requestId !== requestSeqRef.current) return;
       console.error('Erro ao carregar histórico:', error);
     } finally {
+      if (requestId !== requestSeqRef.current) return;
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEntries();
-  }, [refreshTrigger]);
+    const timeoutId = setTimeout(() => {
+      fetchEntries();
+    }, 120);
+
+    return () => {
+      requestSeqRef.current += 1;
+      clearTimeout(timeoutId);
+    };
+  }, [refreshTrigger, selectedCategory?.id]);
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
@@ -159,15 +175,27 @@ export const TimeEntriesHistory = ({ refreshTrigger = 0, categories = [] }) => {
     <Card>
       <CardHeader>
         <CardTitle>Histórico de Atividades</CardTitle>
+        <p className="text-xs text-zinc-400 mt-1">
+          Filtro: {filterLabel}
+        </p>
       </CardHeader>
       
       <CardContent>
         {Object.keys(groupedEntries).length === 0 ? (
-          <div className="text-center py-8 text-zinc-400">
-            <Clock size={48} className="mx-auto mb-4 opacity-50" />
-            <p>Nenhuma atividade registrada ainda</p>
-            <p className="text-sm">Inicie seu primeiro timer para ver o histórico aqui</p>
-          </div>
+            <div className="text-center py-8 text-zinc-400">
+              <Clock size={48} className="mx-auto mb-4 opacity-50" />
+              {selectedCategory?.id ? (
+                <>
+                  <p>Nenhuma atividade nesta categoria</p>
+                  <p className="text-sm">Selecione outra categoria ou limpe o filtro</p>
+                </>
+              ) : (
+                <>
+                  <p>Nenhuma atividade registrada ainda</p>
+                  <p className="text-sm">Inicie seu primeiro timer para ver o histórico aqui</p>
+                </>
+              )}
+            </div>
         ) : (
           <div className="space-y-6">
             {Object.entries(groupedEntries).map(([date, dateEntries]) => (

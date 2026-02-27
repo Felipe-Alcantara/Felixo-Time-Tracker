@@ -101,10 +101,19 @@ class TimeEntryViewSet(viewsets.ModelViewSet):
             
         # Filtros por categoria e tag
         category_id = self.request.query_params.get('category')
+        include_descendants = self.request.query_params.get('include_descendants')
         tag_name = self.request.query_params.get('tag')
         
         if category_id:
-            queryset = queryset.filter(category_id=category_id)
+            include_descendants_flag = str(include_descendants).lower() in ('1', 'true', 'yes')
+            if include_descendants_flag:
+                category = Category.objects.filter(id=category_id).first()
+                if category:
+                    queryset = queryset.filter(category__path__startswith=category.path)
+                else:
+                    queryset = queryset.none()
+            else:
+                queryset = queryset.filter(category_id=category_id)
         if tag_name:
             queryset = queryset.filter(tags__name=tag_name)
             

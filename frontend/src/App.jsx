@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, Clock, FolderTree, History, Settings } from 'lucide-react';
 import { TimerDisplay, TimerControls } from './components/Timer';
@@ -20,10 +20,12 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedManagerCategory, setSelectedManagerCategory] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [categoryToAddTo, setCategoryToAddTo] = useState(null);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const tasksRequestSeqRef = useRef(0);
   
   const { 
     currentEntry, 
@@ -42,10 +44,19 @@ function App() {
 
   // Carregar tasks quando categoria é selecionada
   useEffect(() => {
-    if (selectedCategory) {
-      fetchTasks(selectedCategory.id);
+    if (selectedCategory?.id) {
+      const timeoutId = setTimeout(() => {
+        fetchTasks(selectedCategory.id);
+      }, 120);
+      return () => {
+        tasksRequestSeqRef.current += 1;
+        clearTimeout(timeoutId);
+      };
+    } else {
+      tasksRequestSeqRef.current += 1;
+      setTasks([]);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory?.id]);
 
   const fetchCategories = async () => {
     try {
@@ -57,10 +68,14 @@ function App() {
   };
 
   const fetchTasks = async (categoryId) => {
+    const requestId = ++tasksRequestSeqRef.current;
     try {
+      setTasks([]);
       const response = await taskAPI.getAll(categoryId);
+      if (requestId !== tasksRequestSeqRef.current) return;
       setTasks(response.data.results || response.data);
     } catch (error) {
+      if (requestId !== tasksRequestSeqRef.current) return;
       console.error('Erro ao carregar tasks:', error);
     }
   };
@@ -75,12 +90,25 @@ function App() {
   };
 
   const handleCategorySelect = (category) => {
+    if (!category?.id) {
+      setSelectedCategory(null);
+      return;
+    }
+    if (selectedCategory?.id === category.id) {
+      setSelectedCategory(null);
+      return;
+    }
     setSelectedCategory(category);
   };
 
   const handleCategoryChange = (categoryId) => {
     const category = findCategoryById(categories, categoryId);
-    setSelectedCategory(category);
+    const nextId = category?.id || null;
+    const currentId = selectedCategory?.id || null;
+    if (currentId === nextId) {
+      return;
+    }
+    setSelectedCategory(category || null);
   };
 
   const findCategoryById = (cats, id) => {
@@ -230,6 +258,7 @@ function App() {
               <TimeEntriesHistory 
                 refreshTrigger={refreshTrigger} 
                 categories={categories}
+                selectedCategory={selectedCategory}
               />
             </div>
           )}
@@ -240,6 +269,7 @@ function App() {
             <TimeEntriesHistory 
               refreshTrigger={refreshTrigger}
               categories={categories}
+              selectedCategory={selectedCategory}
             />
           )}
 
@@ -247,11 +277,14 @@ function App() {
             <div className="grid lg:grid-cols-[1fr_300px] gap-8">
               <CategoryManager
                 onAddCategory={handleAddCategory}
+                selectedCategory={selectedManagerCategory}
+                onSelectCategory={setSelectedManagerCategory}
               />
-              
+               
               <TimeEntriesHistory 
                 refreshTrigger={refreshTrigger}
                 categories={categories}
+                selectedCategory={selectedManagerCategory}
               />
             </div>
           )}

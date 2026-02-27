@@ -16,12 +16,13 @@ const flattenCategories = (categories = []) => {
   return flat;
 };
 
-export const CategoryManager = ({ onAddCategory }) => {
+export const CategoryManager = ({ onAddCategory, selectedCategory = null, onSelectCategory }) => {
   const [categories, setCategories] = useState([]);
   const [categoryStats, setCategoryStats] = useState({});
   const [categorySessions, setCategorySessions] = useState({});
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const selectedCategoryId = selectedCategory?.id || null;
 
   useEffect(() => {
     fetchCategories();
@@ -121,10 +122,22 @@ export const CategoryManager = ({ onAddCategory }) => {
     setExpandedCategories(new Set());
   };
 
+  const handleSelectCategory = (category) => {
+    if (!onSelectCategory) {
+      return;
+    }
+    if (selectedCategoryId === category.id) {
+      onSelectCategory(null);
+      return;
+    }
+    onSelectCategory(category);
+  };
+
   const CategoryItem = ({ category, level = 0 }) => {
     const stats = categoryStats[category.id];
     const sessions = categorySessions[category.id] || [];
     const isExpanded = expandedCategories.has(category.id);
+    const isSelected = selectedCategoryId === category.id;
     const hasChildren = category.children && category.children.length > 0;
     const hasSessions = sessions.length > 0;
 
@@ -133,15 +146,23 @@ export const CategoryManager = ({ onAddCategory }) => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="p-4 bg-zinc-800/30 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+          className={`p-4 rounded-xl border transition-colors ${
+            isSelected
+              ? 'bg-felixo-purple/15 border-felixo-purple/40'
+              : 'bg-zinc-800/30 border-white/10 hover:border-white/20'
+          }`}
           style={{ marginLeft: `${level * 20}px` }}
         >
           <div
             className="flex items-center justify-between cursor-pointer"
-            onClick={() => handleToggleCategory(category.id)}
+            onClick={() => {
+              handleSelectCategory(category);
+              handleToggleCategory(category.id);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                handleSelectCategory(category);
                 handleToggleCategory(category.id);
               }
             }}
@@ -327,6 +348,15 @@ export const CategoryManager = ({ onAddCategory }) => {
               Recolher Todas
             </Button>
           </div>
+
+          <Button
+            variant="ghost"
+            onClick={() => onSelectCategory && onSelectCategory(null)}
+            disabled={!selectedCategoryId}
+            className="w-full"
+          >
+            Mostrar Todas no Histórico
+          </Button>
 
           <div className="space-y-2">
             {categories.length === 0 ? (
