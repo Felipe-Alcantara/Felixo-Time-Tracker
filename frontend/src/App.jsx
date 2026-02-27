@@ -274,7 +274,7 @@ function App() {
           )}
 
           {activeTab === 'categories' && (
-            <div className="grid lg:grid-cols-[1fr_300px] gap-8">
+            <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8">
               <CategoryManager
                 onAddCategory={handleAddCategory}
                 selectedCategory={selectedManagerCategory}
