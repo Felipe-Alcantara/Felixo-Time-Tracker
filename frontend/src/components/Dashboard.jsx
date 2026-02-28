@@ -16,6 +16,8 @@ export const StatsDashboard = () => {
 
   const getPeriodDates = () => {
     switch (period) {
+      case 'all':
+        return {};
       case 'today':
         const today = getTodayDateString();
         return { from: today, to: today };
@@ -111,6 +113,7 @@ export const StatsDashboard = () => {
             className="w-auto"
             wrapperClassName="w-auto"
           >
+            <option value="all">Todo período</option>
             <option value="today">Hoje</option>
             <option value="week">Esta semana</option>
             <option value="month">Este mês</option>

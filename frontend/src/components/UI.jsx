@@ -117,7 +117,8 @@ export const Select = ({ children, className = '', wrapperClassName = '', ...pro
   return (
     <div className={`group relative w-full ${wrapperClassName}`}>
       <select
-        className={`w-full h-10 rounded-xl bg-gradient-to-b from-zinc-800/60 to-zinc-900/80 border border-white/10 px-3 pr-10 text-sm outline-none appearance-none transition-colors hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed input-glowing-border:focus ${hasValue ? 'text-white' : 'text-zinc-400'} ${className}`}
+        style={{ colorScheme: 'dark' }}
+        className={`w-full h-10 rounded-xl bg-zinc-900 border border-white/10 px-3 pr-10 text-sm outline-none appearance-none transition-colors hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed input-glowing-border:focus [&>option]:bg-zinc-900 [&>option]:text-zinc-100 ${hasValue ? 'text-white' : 'text-zinc-400'} ${className}`}
         {...props}
       >
         {children}
