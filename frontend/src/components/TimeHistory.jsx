@@ -316,3 +316,6 @@ export const TimeEntriesHistory = ({ refreshTrigger = 0, categories = [], select
     </Card>
   );
 };
+
+// Backward-compatible alias used by existing imports in App.jsx
+export const TimeHistory = TimeEntriesHistory;
