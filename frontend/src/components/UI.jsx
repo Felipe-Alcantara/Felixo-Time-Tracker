@@ -9,10 +9,10 @@ export const Button = ({
   disabled = false,
   ...props 
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-2xl text-sm font-medium transition shadow-sm border focus:outline-none focus:ring-2 focus:ring-felixo-purple/20';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-colors shadow-sm border focus:outline-none focus:ring-2 focus:ring-felixo-purple/20';
   
   const variants = {
-    default: 'bg-white text-black border-white/10 hover:bg-zinc-100 disabled:opacity-50',
+    default: 'bg-white text-black border-transparent hover:bg-zinc-200 disabled:opacity-50',
     outline: 'bg-transparent text-white border-white/20 hover:bg-white/5 disabled:opacity-50',
     ghost: 'bg-transparent text-white border-transparent hover:bg-white/5 disabled:opacity-50',
     secondary: 'bg-zinc-800 text-white border-white/10 hover:bg-zinc-700 disabled:opacity-50',
@@ -23,7 +23,7 @@ export const Button = ({
     sm: 'h-9 px-3 text-xs',
     md: 'h-10 px-4',
     lg: 'h-12 px-6 text-base',
-    icon: 'h-12 w-12 p-2'
+    icon: 'h-10 w-10 p-2'
   };
   
   return (
@@ -46,7 +46,7 @@ export const Card = ({ children, className = '', glow = false, ...props }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-3xl border bg-zinc-950/50 border-white/10 hover:border-white/20 transition-colors ${glowClass} ${className}`}
+      className={`rounded-3xl border bg-zinc-900/40 border-white/10 hover:border-white/20 transition-colors backdrop-blur-xl ${glowClass} ${className}`}
       {...props}
     >
       {children}
@@ -55,31 +55,31 @@ export const Card = ({ children, className = '', glow = false, ...props }) => {
 };
 
 export const CardHeader = ({ children, className = '' }) => (
-  <div className={`p-5 border-b border-white/5 ${className}`}>
+  <div className={`p-6 border-b border-white/5 ${className}`}>
     {children}
   </div>
 );
 
 export const CardContent = ({ children, className = '' }) => (
-  <div className={`p-5 ${className}`}>
+  <div className={`p-6 ${className}`}>
     {children}
   </div>
 );
 
 export const CardFooter = ({ children, className = '' }) => (
-  <div className={`p-5 border-t border-white/5 flex items-center gap-3 ${className}`}>
+  <div className={`p-6 border-t border-white/5 flex items-center gap-3 ${className}`}>
     {children}
   </div>
 );
 
 export const CardTitle = ({ children, className = '' }) => (
-  <h3 className={`text-base font-semibold text-white ${className}`}>
+  <h3 className={`text-lg font-semibold text-white ${className}`}>
     {children}
   </h3>
 );
 
 export const CardDescription = ({ children, className = '' }) => (
-  <p className={`text-xs text-zinc-400 ${className}`}>
+  <p className={`text-sm text-zinc-400 ${className}`}>
     {children}
   </p>
 );
@@ -118,7 +118,7 @@ export const Select = ({ children, className = '', wrapperClassName = '', ...pro
     <div className={`group relative w-full ${wrapperClassName}`}>
       <select
         style={{ colorScheme: 'dark' }}
-        className={`w-full h-10 rounded-xl bg-zinc-900 border border-white/10 px-3 pr-10 text-sm outline-none appearance-none transition-colors hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed input-glowing-border:focus [&>option]:bg-zinc-900 [&>option]:text-zinc-100 ${hasValue ? 'text-white' : 'text-zinc-400'} ${className}`}
+        className={`w-full h-10 rounded-xl bg-zinc-800/50 border-white/10 px-3 pr-10 text-sm outline-none appearance-none transition-colors hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed input-glowing-border:focus [&>option]:bg-zinc-900 [&>option]:text-zinc-100 ${hasValue ? 'text-white' : 'text-zinc-400'} ${className}`}
         {...props}
       >
         {children}
@@ -146,7 +146,7 @@ export const Modal = ({ isOpen, onClose, children, title }) => {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="border border-felixo-purple/30 rounded-2xl w-11/12 max-w-md p-6 shadow-2xl felixo-card-glow bg-zinc-950"
+        className="border border-felixo-purple/30 rounded-2xl w-11/12 max-w-md p-6 shadow-2xl felixo-card-glow bg-zinc-900/80 backdrop-blur-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {title && (

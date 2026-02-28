@@ -4,7 +4,7 @@ import { BarChart3, Clock, FolderTree, History, Settings } from 'lucide-react';
 import { TimerDisplay, TimerControls } from './components/Timer';
 import { CategoryTree } from './components/CategoryTree';
 import { StatsDashboard } from './components/Dashboard';
-import { TimeEntriesHistory } from './components/TimeHistory';
+import { TimeHistory } from './components/TimeHistory';
 import { AddCategoryModal } from './components/AddCategoryModal';
 import { AddTaskModal } from './components/AddTaskModal';
 import { CategoryManager } from './components/CategoryManager';
@@ -180,7 +180,7 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black">
+    <div className="min-h-screen bg-zinc-950 bg-grid-zinc-900/20">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <motion.header
@@ -188,11 +188,11 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter">
             Felixo <span className="text-felixo-purple">Time Tracker</span>
           </h1>
-          <p className="text-lg text-zinc-400">
-            Gerencie seu tempo com categorias aninhadas e estatísticas detalhadas
+          <p className="text-lg text-zinc-400 max-w-xl mx-auto">
+            Gerencie seu tempo com categorias aninhadas e estatísticas detalhadas.
           </p>
         </motion.header>
 
@@ -255,7 +255,7 @@ function App() {
                 />
               </div>
               
-              <TimeEntriesHistory 
+              <TimeHistory 
                 refreshTrigger={refreshTrigger} 
                 categories={categories}
                 selectedCategory={selectedCategory}
@@ -263,10 +263,23 @@ function App() {
             </div>
           )}
 
-          {activeTab === 'dashboard' && <StatsDashboard />}
+          {activeTab === 'dashboard' && (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <div className="xl:col-span-2">
+                <TimeHistory 
+                  refreshTrigger={refreshTrigger}
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                />
+              </div>
+              <div className="xl:col-span-1">
+                <StatsDashboard />
+              </div>
+            </div>
+          )}
 
           {activeTab === 'history' && (
-            <TimeEntriesHistory 
+            <TimeHistory 
               refreshTrigger={refreshTrigger}
               categories={categories}
               selectedCategory={selectedCategory}
@@ -281,7 +294,7 @@ function App() {
                 onSelectCategory={setSelectedManagerCategory}
               />
                
-              <TimeEntriesHistory 
+              <TimeHistory 
                 refreshTrigger={refreshTrigger}
                 categories={categories}
                 selectedCategory={selectedManagerCategory}

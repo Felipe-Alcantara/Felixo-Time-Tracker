@@ -71,14 +71,46 @@ export const StatsDashboard = () => {
 
   if (loading) {
     return (
-      <div className="grid gap-6">
-        {[1, 2, 3, 4].map(i => (
-          <Card key={i} className="animate-pulse">
-            <CardContent>
-              <div className="h-32 bg-zinc-800/50 rounded"></div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        {/* Header com controles */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="h-8 w-48 bg-zinc-800/50 rounded animate-pulse"></div>
+            <div className="h-4 w-64 bg-zinc-800/50 rounded mt-2 animate-pulse"></div>
+          </div>
+          <div className="flex gap-3">
+            <div className="h-10 w-32 bg-zinc-800/50 rounded-xl animate-pulse"></div>
+            <div className="h-10 w-32 bg-zinc-800/50 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Cards de resumo */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader>
+                <div className="h-5 w-32 bg-zinc-800/50 rounded"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-24 bg-zinc-800/50 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Gráficos */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[1, 2].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader>
+                <div className="h-6 w-40 bg-zinc-800/50 rounded"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] bg-zinc-800/50 rounded-xl"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -102,8 +134,8 @@ export const StatsDashboard = () => {
       {/* Header com controles */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-          <p className="text-zinc-400">Estatísticas do seu tempo</p>
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <p className="text-zinc-400 mt-1">Estatísticas do seu tempo.</p>
         </div>
         
         <div className="flex gap-3">
@@ -132,44 +164,44 @@ export const StatsDashboard = () => {
       {/* Cards de resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardContent className="flex items-center gap-4">
-            <div className="p-3 bg-felixo-purple/20 rounded-lg">
-              <Clock className="text-felixo-purple" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-400">Tempo Total</p>
-              <p className="text-2xl font-bold text-white">
-                {formatDurationShort(stats?.total_seconds || 0)}
-              </p>
-            </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-zinc-400">
+              <Clock size={18} />
+              Tempo Total
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-white">
+              {formatDurationShort(stats?.total_seconds || 0)}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="flex items-center gap-4">
-            <div className="p-3 bg-blue-500/20 rounded-lg">
-              <Calendar className="text-blue-400" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-400">Sessões</p>
-              <p className="text-2xl font-bold text-white">
-                {stats?.total_entries || 0}
-              </p>
-            </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-zinc-400">
+              <Calendar size={18} />
+              Sessões
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-white">
+              {stats?.total_entries || 0}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="flex items-center gap-4">
-            <div className="p-3 bg-green-500/20 rounded-lg">
-              <TrendingUp className="text-green-400" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-400">Média por Sessão</p>
-              <p className="text-2xl font-bold text-white">
-                {formatDurationShort(stats?.avg_session_seconds || 0)}
-              </p>
-            </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-zinc-400">
+              <TrendingUp size={18} />
+              Média por Sessão
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-white">
+              {formatDurationShort(stats?.avg_session_seconds || 0)}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -189,17 +221,29 @@ export const StatsDashboard = () => {
                     data={categoryData}
                     cx="50%"
                     cy="50%"
+                    innerRadius={60}
                     outerRadius={80}
                     dataKey="value"
-                    label={({ name, duration }) => `${name}: ${duration}`}
+                    paddingAngle={5}
                   >
                     {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        className="focus:outline-none transition-opacity"
+                      />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    formatter={(value) => formatDurationShort(value)}
-                    labelStyle={{ color: '#000' }}
+                  <Tooltip
+                    formatter={(value, name, props) => [formatDurationShort(value), props.payload.name]}
+                    labelStyle={{ color: '#FFF' }}
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                      borderColor: '#555',
+                      borderRadius: '10px',
+                      color: '#FFF'
+                    }}
+                    itemStyle={{ color: '#FFF' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -219,24 +263,34 @@ export const StatsDashboard = () => {
           <CardContent>
             {topTasks.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={topTasks}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <BarChart data={topTasks} layout="vertical" margin={{ left: 20, right: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={false} />
                   <XAxis 
-                    dataKey="task__name" 
-                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis 
+                    type="number"
                     tick={{ fill: '#9CA3AF', fontSize: 12 }}
                     tickFormatter={(value) => formatDurationShort(value)}
+                    axisLine={false}
                   />
-                  <Tooltip 
-                    formatter={(value) => formatDurationShort(value)}
-                    labelStyle={{ color: '#000' }}
+                  <YAxis 
+                    type="category"
+                    dataKey="task__name"
+                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                    width={100}
+                    axisLine={false}
                   />
-                  <Bar dataKey="total_seconds" fill="#C084FC" />
+                  <Tooltip
+                    formatter={(value) => [formatDurationShort(value), 'Duração']}
+                    labelStyle={{ color: '#FFF' }}
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                      borderColor: '#555',
+                      borderRadius: '10px',
+                      color: '#FFF'
+                    }}
+                    itemStyle={{ color: '#FFF' }}
+                    cursor={{ fill: 'rgba(192, 132, 252, 0.1)' }}
+                  />
+                  <Bar dataKey="total_seconds" fill="#A855F7" radius={[0, 10, 10, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -255,24 +309,16 @@ export const StatsDashboard = () => {
             <CardTitle>Tempo por Tag</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {tagData.map((tag, index) => (
-                <motion.div
-                  key={tag.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 bg-zinc-800/50 rounded-xl border border-white/10"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: tag.color }}
-                    />
-                    <span className="text-sm font-medium text-white">{tag.name}</span>
-                  </div>
-                  <p className="text-lg font-bold text-felixo-purple">{tag.duration}</p>
-                </motion.div>
+            <div className="flex flex-wrap gap-3">
+              {tagData.map((tag) => (
+                <Badge key={tag.name} color="purple" className="flex items-center gap-2">
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: tag.color }}
+                  />
+                  <span className="font-semibold">{tag.name}</span>
+                  <span className="text-zinc-400">{tag.duration}</span>
+                </Badge>
               ))}
             </div>
           </CardContent>
