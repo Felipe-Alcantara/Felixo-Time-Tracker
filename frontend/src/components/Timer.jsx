@@ -25,10 +25,10 @@ export const TimerDisplay = ({ elapsedTime, isRunning }) => {
   );
 };
 
-export const TimerControls = ({ 
-  categories = [], 
-  tasks = [], 
-  tags = [], 
+export const TimerControls = ({
+  categories = [],
+  tasks = [],
+  tags = [],
   onCategoryChange,
   onStart,
   onStop,
@@ -51,14 +51,14 @@ export const TimerControls = ({
 
   const handleStart = () => {
     if (!selectedCategory) return;
-    
+
     const data = {
       category_id: parseInt(selectedCategory),
       task_id: selectedTask ? parseInt(selectedTask) : null,
       tag_ids: selectedTags,
       note: note
     };
-    
+
     onStart(data);
   };
 
@@ -71,6 +71,11 @@ export const TimerControls = ({
     setNote('');
   };
 
+  const formatCategoryOption = (path) => {
+    const segments = String(path || '').split('/').filter(Boolean);
+    return segments.join(' > ');
+  };
+
   return (
     <Card className="w-full max-w-md">
       <CardContent>
@@ -78,20 +83,31 @@ export const TimerControls = ({
           {!isRunning ? (
             <>
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  Categoria
-                </label>
-                <Select
-                  value={selectedCategory}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                >
-                  <option value="">Selecione uma categoria</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.path}
-                    </option>
-                  ))}
-                </Select>
+                <div className="rounded-2xl border border-felixo-purple/25 bg-felixo-purple/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-zinc-200">
+                      Categoria
+                    </label>
+                    <span className="text-xs font-medium text-felixo-purple">
+                      Obrigatório
+                    </span>
+                  </div>
+                  <Select
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="h-11 border-felixo-purple/30 bg-zinc-900/80"
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {formatCategoryOption(category.path)}
+                      </option>
+                    ))}
+                  </Select>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Escolha onde o tempo desta sessão será registrado.
+                  </p>
+                </div>
               </div>
 
               {selectedCategory && tasks.length > 0 && (
@@ -158,7 +174,7 @@ export const TimerControls = ({
                   <p className="text-xs text-zinc-500 mt-2">{currentEntry.note}</p>
                 )}
               </div>
-              
+
               <Button
                 variant="outline"
                 size="lg"

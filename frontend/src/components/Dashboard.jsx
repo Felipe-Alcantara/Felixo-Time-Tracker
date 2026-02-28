@@ -109,6 +109,7 @@ export const StatsDashboard = () => {
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
             className="w-auto"
+            wrapperClassName="w-auto"
           >
             <option value="today">Hoje</option>
             <option value="week">Esta semana</option>

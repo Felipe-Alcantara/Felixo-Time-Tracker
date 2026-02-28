@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 
 export const Button = ({ 
   children, 
@@ -109,14 +110,25 @@ export const Input = ({ className = '', ...props }) => (
   />
 );
 
-export const Select = ({ children, className = '', ...props }) => (
-  <select
-    className={`w-full h-10 rounded-xl bg-zinc-800/50 border border-white/10 px-3 text-sm text-white outline-none input-glowing-border:focus ${className}`}
-    {...props}
-  >
-    {children}
-  </select>
-);
+export const Select = ({ children, className = '', wrapperClassName = '', ...props }) => {
+  const currentValue = props.value ?? props.defaultValue ?? '';
+  const hasValue = String(currentValue).length > 0;
+
+  return (
+    <div className={`group relative w-full ${wrapperClassName}`}>
+      <select
+        className={`w-full h-10 rounded-xl bg-gradient-to-b from-zinc-800/60 to-zinc-900/80 border border-white/10 px-3 pr-10 text-sm outline-none appearance-none transition-colors hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed input-glowing-border:focus ${hasValue ? 'text-white' : 'text-zinc-400'} ${className}`}
+        {...props}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={16}
+        className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-felixo-purple ${hasValue ? 'text-zinc-300' : 'text-zinc-500'}`}
+      />
+    </div>
+  );
+};
 
 export const Modal = ({ isOpen, onClose, children, title }) => {
   if (!isOpen) return null;

@@ -59,6 +59,11 @@ export const AddTaskModal = ({ isOpen, onClose, categories, selectedCategory, on
     return result;
   };
 
+  const formatCategoryOption = (path) => {
+    const segments = String(path || '').split('/').filter(Boolean);
+    return segments.join(' > ');
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <div className="flex items-center justify-between mb-4">
@@ -95,12 +100,13 @@ export const AddTaskModal = ({ isOpen, onClose, categories, selectedCategory, on
           <Select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
+            className="h-11"
             required
           >
             <option value="">Selecione uma categoria</option>
             {flattenCategories(categories).map(category => (
               <option key={category.id} value={category.id}>
-                {category.path}
+                {formatCategoryOption(category.path)}
               </option>
             ))}
           </Select>
