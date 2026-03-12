@@ -22,13 +22,23 @@ O projeto combina:
 ### Categorias e organização
 
 - Categorias aninhadas com suporte a multi-nível (categoria pai e filhas).
-- Árvore de categorias para seleção rápida no fluxo de timer.
+- Árvore de categorias estilo file explorer para seleção rápida no fluxo de timer.
 - Gerenciador de categorias com visualização de métricas por categoria.
 - Expansão para listar sessões da categoria.
 - Exclusão de categorias e sessões.
 - Expansão/recolhimento por clique na linha da categoria (não apenas na seta).
 - Filhas ocultas quando a categoria mãe está recolhida.
 - Botão para recolher todas as categorias.
+- Auto-expansão de pais ao selecionar uma categoria filha.
+- Botão hover-reveal para adicionar subcategorias.
+- Breadcrumb mostrando caminho da categoria selecionada.
+
+### Speedrun e performance
+
+- Overlay flutuante em tempo real durante o timer comparando sessão atual contra histórico.
+- Classificação automática de performance: Record, Fast, Normal, Slow, Very Slow.
+- Barra de progresso visual comparando contra a média.
+- Snapshot de stats persistido em cada sessão finalizada.
 
 ### Histórico e edição
 
@@ -51,6 +61,13 @@ O projeto combina:
 - Design system documentado em [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
 - Componentes reutilizáveis (`Button`, `Card`, `Badge`, `Input`, `Select`, `Modal`).
 - Interface responsiva com Tailwind e animações via Framer Motion.
+
+## Documentação técnica
+
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) — Design system visual (cores, componentes, espaçamento).
+- [felixo-standards/DESIGN-SYSTEM-FRONTEND.md](felixo-standards/DESIGN-SYSTEM-FRONTEND.md) — Implementação frontend do design system.
+- [felixo-standards/IA.md](felixo-standards/IA.md) — Contexto do projeto para modelos de IA.
+- [docs/CATEGORY-TREE-EXPLORER.md](docs/CATEGORY-TREE-EXPLORER.md) — Como o explorador de categorias (estilo file explorer) foi construído, com guia para reutilização.
 
 ## Stack tecnológica
 
